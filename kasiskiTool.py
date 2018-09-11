@@ -4,10 +4,6 @@ print("starting")
 
 ciphertext = "llzvvqadpwieixgsgmjbosryarpafkjvjcddcdrtufleomfhkarolzmudenwrmkmgcmuiflistvwleeicfzqgyosrjhjixmrnwllzwlvldingzyfuivruypsgoeinlzeomjjglmjrducarblfqwnimjfllzsnijydwgojvqozsksjmwkwolvjjwhdwgikaxdsecusroirwzqsplfqlgfzaznuzxcidcfveihvhkfemikbwkiiwvmaueixvfdqsplfqlgfjxkfwxehislwokgsissfhzzvhhmxvwkihhimmexwsxcxyyfskvmegsqfzwfgwgjtslbsnixsdylgljknujlwdrgikkinwzifgjvfzfalmzwjixgvhmuutdiolrnqgyaivfugramuyfliislazlsiskjsqeoxvhlasi"
 
-print(len("llzvvqadpwieixgsgmjbosryarpafkjvjcddcdrtufleomfhkarolzmudenwrmkmgcmuiflistvwleeicfzqgyosrjhjixmrnw"))
-print(len("llzwlvldingzyfuivruypsgoeinlzeomjjglmjrducarblfqwnimjf"))
-
-
 ######################################################################
 def get_factors(x):
    # This function takes a number and prints the factors
@@ -16,17 +12,34 @@ def get_factors(x):
        if x % i == 0:
            res.append(i)
    return res
-######################################################################           
+#####################################################################
+######################################################################
+def get_nGrams(ctext, n):
+   res = []
+   i = 0
+   while i<len(ctext):
+   		x = ctext[i: i+n] +"---" + str(ctext.count(ctext[i: i+n]))
+   		if x not in res and ctext.count(ctext[i: i+n])>2:
+   			res.append(x)
+   		i = i+1
+   return res
+##################################################################### get lengths between nGrams 
 
-val = ciphertext.split("llz")
+nGramLen = 3
+nGram = get_nGrams(ciphertext, nGramLen)
+print(nGram)
+
+
+val = ciphertext.split("lfq")
+print("val", val)
 lengths = []
 
 for x in val:
-	if len(x)>0 and x != val[len(val)-1] :
-		lengths.append(len(x) + 3)
+	if x != val[len(val)-1] and x != val[0]:
+		lengths.append(len(x) + nGramLen)
 print("lengths:", lengths)
 
-
+################################################################# gets factors and common factors
 factors = []
 for y in lengths:
 	factors.append(get_factors(y))
@@ -36,73 +49,114 @@ print("factors:", factors)
 commonFactors = list(set(factors[0]).intersection(factors[1]))
 print("commonFactors: ", commonFactors)
 
-##########################################################################
-n = 2
+##########################################################################reorganzies in array by common factor length
+n = 7
+print('\n\n\nAssumed Key Length: ',n)
 mapper = [ciphertext[i:i+n] for i in range(0, len(ciphertext), n)]
+print("\nMapper: ", mapper)
+############################################################################## organize arrays by column
 
-n1 = []
-n2 = []
+def colOrder(size, arr):
+	colArr = []
+	for i in range(0, size):##foll arr empty initial
+		colArr.append([])
+	for i in range(0, len(arr)):##traverse through each nGram in arr
+		for j in range(0, len(arr[i])):##traverse through each column letter in arr[j]
+			colArr[j].append(arr[i][j])
+	return colArr
+###########################################################################################get letters by column
 
-for letter in mapper:
-	try:		
-		n1.append(letter[0])
-	except IndexError:
-		print("nothing")
-	try:		
-		n2.append(letter[1])
-	except IndexError:
-		print("nothing")
+colArr = colOrder(n, mapper)
+print("\ncolumn array:")
+for i in range(0, len(colArr)):
+	print("-----------------------------------------------------------COL", i,"\n", )
+	print(colArr[i])
+	print("\nMost Common: ", collections.Counter(''.join(colArr[i])).most_common(1)[0], "\n")
+print("-----------------------------------------------------------" )
+#################################################################################
+#################################################################################
+commonLetters = [['e'], ['t', 'a','o' 'i', 'n', 's', 'h', 'r'], ['d','l'],['c', 'u', 'm', 'w', 'f', 'g', 'y', 'p', 'b']] 
+alphabet = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
+
+def deCryptByE(shift, arr):
+	plainArr = []
+	alphabet = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
+	for i in range(0, len(arr)): ##iterate through all letters
+	    plainLetterLoc = alphabet.index(arr[i])-shift
+	    if (plainLetterLoc<0):
+	    	plainLetterLoc = len(alphabet) + plainLetterLoc
+	    plainLetter = alphabet[plainLetterLoc]
+	    plainArr.append(plainLetter)
+	return plainArr
+#################################################################################
+def deCryptStep(colNumber, currentLetter, expected,currSentence, alphabet, currKey):
+	columnNumber =colNumber 
+	e_ciphered = currentLetter
+	shiftRight = (alphabet.index(e_ciphered) - alphabet.index(expected))%26
+	keyLetter = alphabet[shiftRight]
+	currKey[colNumber] = keyLetter
 
 
-print (n1)
-print (n2)
+	#print(keyLetter)
+	#print(colArr[columnNumber])
+	deCrypted1 = deCryptByE(shiftRight, colArr[columnNumber])
+	#print(deCryptByE(shiftRight, colArr[columnNumber]))
 
-n1String = ''.join(n1)
-n2String = ''.join(n2)
+	for i in range(0, len(colArr[columnNumber])):
+		currSentence[(i*7)+columnNumber] = deCrypted1[i]
+	print(''.join(currSentence))
+	print('\n\n Key: ', currKey)
+#################################################################################
 
-print (n1String)
-print (n2String)
 
-print(collections.Counter(n1String).most_common(1)[0])
-print(collections.Counter(n2String).most_common(1)[0])
+sentenceArr = ["*"]*len(ciphertext)
+currentKey = ['*','*','*','*','*','*','*']
+#look at column with highest number of common occurence and its corresponding cipher letter
+deCryptStep(1, 'i', 'e',sentenceArr, alphabet, currentKey)
+deCryptStep(0, 'l', 't',sentenceArr, alphabet, currentKey)
+deCryptStep(2, 'z', 'e',sentenceArr, alphabet, currentKey)
+deCryptStep(6, 'a', 'i',sentenceArr, alphabet, currentKey)
+deCryptStep(3, 'v', 'r',sentenceArr, alphabet, currentKey)
+deCryptStep(4, 'v', 'e',sentenceArr, alphabet, currentKey)
+deCryptStep(5, 'q', 'w',sentenceArr, alphabet, currentKey)
 
-class cipherChar:
-	def __init__(self, cipherString):
-		self.cipherString = cipherString
-		self.a = cipherString.count('a')
-		self.b = cipherString.count('b')
-		self.c = cipherString.count('c')
-		self.d = cipherString.count('d')
-		self.e = cipherString.count('e')
-		self.f = cipherString.count('f')
-		self.g = cipherString.count('g')
-		self.h = cipherString.count('h')
-		self.i = cipherString.count('i')
-		self.j = cipherString.count('j')
-		self.k = cipherString.count('k')
-		self.l = cipherString.count('l')
-		self.m = cipherString.count('m')
-		self.n = cipherString.count('n')
-		self.o = cipherString.count('o')
-		self.p = cipherString.count('p')
-		self.q = cipherString.count('q')
-		self.r = cipherString.count('r')
-		self.s = cipherString.count('s')
-		self.t = cipherString.count('t')
-		self.u = cipherString.count('u')
-		self.v = cipherString.count('v')
-		self.w = cipherString.count('w')
-		self.x = cipherString.count('x')
-		self.y = cipherString.count('y')
-		self.z = cipherString.count('z')
 
-cc1 = cipherChar(n1String)
-attrs1 = vars(cc1)
-cc2 = cipherChar(n2String)
-attrs2 = vars(cc2)
-# {'kids': 0, 'name': 'Dog', 'color': 'Spotted', 'age': 10, 'legs': 2, 'smell': 'Alot'}
-# now dump this in some way or another
-print ('\n'.join("%s: %s" % item for item in attrs1.items()))
-print('\n\n\n')
-print ('\n'.join("%s: %s" % item for item in attrs2.items()))
+################################################################################# *h can be th, find the value for t
+
+# columnNumber =0 
+# e_ciphered = 'l'
+# shiftRight = (alphabet.index(e_ciphered) - alphabet.index('t'))%26
+# keyLetter = alphabet[shiftRight]
+
+
+# print(keyLetter)
+# print(colArr[columnNumber])
+# deCrypted1 = deCryptByE(shiftRight, colArr[columnNumber])
+# print(deCryptByE(shiftRight, colArr[columnNumber]))
+
+
+# for i in range(0, len(colArr[columnNumber])):
+# 	sentenceArr[(i*7)+columnNumber] = deCrypted1[i]
+# print(''.join(sentenceArr))
+
+# ################################################################################# col3, get word 'the'
+
+# columnNumber =2 
+# e_ciphered = 'z'
+# shiftRight = (alphabet.index(e_ciphered) - alphabet.index('e'))%26
+# keyLetter = alphabet[shiftRight]
+
+
+# print(keyLetter)
+# print(colArr[columnNumber])
+# deCrypted1 = deCryptByE(shiftRight, colArr[columnNumber])
+# print(deCryptByE(shiftRight, colArr[columnNumber]))
+
+
+# for i in range(0, len(colArr[columnNumber])):
+# 	sentenceArr[(i*7)+columnNumber] = deCrypted1[i]
+# print(''.join(sentenceArr))
+
+
+
 
