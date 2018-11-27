@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>Super Safe Drive</h1>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<h3>Sign In</h3>
+<form action="signIn.php" method="post">
+  username:<br>
+  <input id="id" type="text" name="id" value="">
+  <br>
+  password:<br>
+  <input id="password" type="password" name="password" value="">
+  <br><br>
+  <input type="submit" value="Submit" onclick="saveId()">
+</form> 
+
+<div id="listFiles">
+  
+</div>
+
+<p>Upload your photos here.  They'll be safe, we promise! </p>
+<p>¯\_(ツ)_/¯</p>
+
+<script>
+      function saveId()
+      {
+        localStorage.setItem("id", document.getElementById("id").value);
+        localStorage.setItem("password", document.getElementById("password").value);
+      }
+      console.log(localStorage.getItem("id"));
+          
+          
+</script>
+
+</body>
+</html>
