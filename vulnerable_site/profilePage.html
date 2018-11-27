@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<!-- <script>
+$.ajax({                                      
+      url: 'fileUpload.php',  
+      method: "POST",       
+      data: {'userId': localStorage.getItem("user")},
+      dataType: 'json',                
+      success: (data) =>{
+            data.forEach((entry) =>{
+           console.log(entry.fileName);
+           photoTAG +=`<li><img src="uploads/${entry.fileName}" width="150" height="150"></li>`
+           document.getElementById("listFiles").innerHTML = photoTAG;
+        });
+        
+      } 
+    });
+</script> -->
+</head>
+<body>
+
+<h2>Your Files</h2>
+
+<p>If you click the "Submit" button, the form-data will be sent to a page called "/action_page.php".</p>
+<br>
+<h3><u>Files:</u></h3>
+<form action="fileUpload.php" method="post" enctype="multipart/form-data">
+    Select image to upload:
+    <input type="file" name="file" id="file" accept="image/*">
+    <input type="text" name="userId" id="userId" hidden="true">
+    <input type="submit" value="Upload Image" name="submit">
+</form>
+
+
+<br>
+
+
+<h3><u>Images:</u></h3>
+
+<ol id="listFiles">
+</ol>
+
+
+<script>
+
+    $.ajax({                                      
+          url: 'getFiles.php',  
+          method: "post",       
+          data: {'userId': localStorage.getItem("id")},
+          dataType: 'json',                
+          success: function(data)          
+          {
+            data.forEach(function(entry){
+              console.log(entry);
+              $("#listFiles").append(
+                `<li><img src="${entry.fileName}" ></li>`
+              );
+          
+            });
+        
+          },
+          error: function(XMLHttpRequest, textStatus, errorThrown) { 
+            console.log("Status: " + textStatus); 
+            console.log("Error: " + errorThrown); 
+            console.log("Error: " + XMLHttpRequest); 
+          }        
+        });
+  
+
+       /* function updateDisplay(){
+          document.getElementById("userId").value = localStorage.getItem("id");
+           $.ajax({
+                    url: '/getFiles.php',
+                    type: 'POST',
+                    dataType: "json",
+                    data: {
+                        'userId': localStorage.getItem("id")
+                    }
+                })
+              .done(function(data){
+                        data.forEach((entry) =>{
+                      photoTAG +=`<li><img src="${entry.fileName}" width="150" height="150"></li>`
+                      document.getElementById("listFiles").innerHTML = photoTAG;
+                });
+
+
+        }*/
+
+      
+
+        console.log(localStorage.getItem("id"));  
+        console.log(localStorage.getItem("password"));
+        var photoTAG = ``;
+        document.getElementById("userId").value = localStorage.getItem("id");
+
+        //document.getElementById("userId").value = localStorage.getItem("id");
+    
+
+
+  
+</script>
+
+</body>
+</html>
